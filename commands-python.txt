@@ -1,0 +1,10 @@
+# создаем виртуальное окружение
+C:/Users/User/AppData/Local/Programs/Python/Python310/python.exe -m venv venv
+
+# активируем виртуальное окружение
+# windows
+venv\scripts\activate
+# mac
+source venv/bin/activate
+python -m pip install --upgrade pip
+pip install psycopg2

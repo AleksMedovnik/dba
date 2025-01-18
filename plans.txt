@@ -1,0 +1,38 @@
+1. Администрирование СУБД
+PostgreSQL, MongoDB.
+Установка, настройка и обновление СУБД.
+Управление пользователями и доступами.
+Мониторинг производительности и состояния серверов БД.
+2. Оптимизация производительности
+Индексы (B-Tree, Hash, GIN, BRIN и др.).
+Анализ и оптимизация запросов (EXPLAIN ANALYZE).
+Оптимизация схемы БД (нормализация, денормализация, партиционирование).
+Тюнинг параметров конфигурации (postgresql.conf, my.cnf).
+Кэширование (Redis, PgBouncer, ProxySQL).
+3. SQL и программирование
+Продвинутый SQL: JOIN, CTE, WINDOW FUNCTIONS, JSON, ARRAYS.
+Транзакции (BEGIN, COMMIT, ROLLBACK), уровни изоляции.
+Процедуры и триггеры (PL/pgSQL, T-SQL, PL/SQL).
+Автоматизация задач (Bash, Python, Ansible).
+4. Репликация и отказоустойчивость
+Физическая и логическая репликация (PostgreSQL, MySQL).
+Clustering (Patroni, Galera Cluster, Always On).
+Бэкап и восстановление (pg_dump, pg_basebackup, mysqldump, rsync).
+DRP (Disaster Recovery Plan) и HA (High Availability).
+5. Безопасность и доступ
+Шифрование данных (TDE, SSL/TLS).
+Управление ролями и правами (GRANT, REVOKE).
+Аудит и логирование (pgAudit, mysqlbinlog).
+Обнаружение аномалий и защита от SQL-инъекций.
+6. Работа с большими объемами данных
+Партиционирование таблиц.
+Архивация данных.
+NoSQL и гибридные решения (MongoDB, Elasticsearch).
+7. Мониторинг и диагностика
+pg_stat_statements, pg_stat_activity, slow_query_log.
+Инструменты мониторинга (Zabbix, Prometheus, Grafana, pgBadger).
+Поиск и устранение узких мест в производительности.
+8. DevOps и CI/CD
+Работа с контейнерами (Docker, Kubernetes).
+Автоматизированное развёртывание схем БД (Flyway, Liquibase).
+Интеграция с CI/CD (GitLab CI, Jenkins).
