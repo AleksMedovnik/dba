@@ -1,0 +1,35 @@
+// запуск
+docker-compose up -d
+
+// Остановить контейнер 
+docker stop postgres-container
+
+// Проверить список работающих контейнеров:
+docker ps
+
+// Зайти внутрь контейнера и подключиться к PostgreSQL:
+winpty docker exec -it postgres-container psql -U admin -d mydb
+
+// Вывести список баз данных:
+\l
+
+// Вывести список таблиц:
+\dt
+
+// Выйти из PostgreSQL:
+\q
+
+
+// From python
+# создаем виртуальное окружение
+C:/Users/User/AppData/Local/Programs/Python/Python310/python.exe -m venv venv
+
+# активируем его
+# windows
+venv\scripts\activate
+# mac
+source venv/bin/activate
+python -m pip install --upgrade pip
+pip install psycopg2
+
+
