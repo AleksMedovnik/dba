@@ -159,6 +159,13 @@ pg_read_all_stats	        Может просматривать статисти
 pg_signal_backend	        Может завершать процессы других пользователей.
 pg_execute_server_program	Может запускать серверные программы.
 
+# Привилегия	Описание
+SUPERUSER	Полный контроль над системой, игнорирует все ограничения.
+CREATEDB	Позволяет создавать базы данных.
+CREATEROLE	Позволяет создавать и управлять ролями (но без SUPERUSER).
+REPLICATION	Позволяет подключаться к серверу для репликации.
+BYPASSRLS	Позволяет игнорировать политику Row-Level Security (RLS).
+
 # роли конкретного пользователя
 SELECT rolname FROM pg_roles WHERE rolname = 'admin';
 
