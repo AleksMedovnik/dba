@@ -3,8 +3,8 @@ import psycopg2
 # Подключение к БД
 conn = psycopg2.connect(
     dbname="mydb",
-    user="dba_admin",
-    password="hlsdjien136powej%^$",
+    user="admin",
+    password="dkfj;wei;93--&#8",
     host="localhost",
     port="5432"
 )
@@ -29,7 +29,7 @@ cur = conn.cursor()
 # ]
 # cur.execute("INSERT INTO users (name, age) VALUES (%s, %s)", ("Анна", 21))
 # cur.executemany("INSERT INTO users (name, age) VALUES (%s, %s)", users)
-cur.execute("ALTER ROLE admin NOCREATEROLE NOCREATEDB NOREPLICATION;")
+# cur.execute("ALTER ROLE admin BYPASSRLS;")
 
 # Фиксация изменений
 conn.commit()
@@ -40,6 +40,7 @@ cur.execute('''SELECT * FROM pg_roles WHERE rolname = 'admin';''')
 rows = cur.fetchall()
 for row in rows:
     print(row)
+
 
 # Закрытие соединения
 cur.close()

@@ -211,5 +211,8 @@ SELECT rolname FROM pg_roles WHERE rolsuper = true;
 # выдать пользователю права CREATEROLE CREATEDB REPLICATION (пример ролей)
 ALTER ROLE username CREATEROLE CREATEDB REPLICATION;
 
-# лишить пользователю прав CREATEROLE CREATEDB REPLICATION (пример ролей)
+# лишить пользователя прав CREATEROLE CREATEDB REPLICATION (пример ролей)
 ALTER ROLE username NOCREATEROLE NOCREATEDB NOREPLICATION;
+
+# Изменить пароль пользователя
+ALTER ROLE username WITH PASSWORD 'new_secure_password';
