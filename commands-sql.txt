@@ -1,6 +1,20 @@
 SELECT datname FROM pg_database;
 \dt;
 
+# посмотреть все схемы
+SELECT schema_name FROM information_schema.schemata;
+
+#  Вывести все таблицы во всех схемах
+SELECT table_schema, table_name FROM information_schema.tables
+WHERE table_type = 'BASE TABLE';
+
+# вывести таблицы из определенной схемы
+SELECT table_name FROM information_schema.tables 
+WHERE table_schema = 'имя_схемы';
+
+# вывести данные из таблицы в определённой схеме
+SELECT * FROM имя_схемы.имя_таблицы;
+
 create database users_db;
 drop database users_db;
 
@@ -183,3 +197,12 @@ ALTER ROLE old_admin WITH NOSUPERUSER;
 SELECT rolname, rolsuper 
 FROM pg_roles 
 WHERE rolname = 'имя_пользователя';
+
+# Вывести всех суперпользователей
+SELECT rolname FROM pg_roles WHERE rolsuper = true;
+
+# выдать пользователю права CREATEROLE CREATEDB REPLICATION (пример ролей)
+ALTER ROLE username CREATEROLE CREATEDB REPLICATION;
+
+# лишить пользователю прав CREATEROLE CREATEDB REPLICATION (пример ролей)
+ALTER ROLE username NOCREATEROLE NOCREATEDB NOREPLICATION;
