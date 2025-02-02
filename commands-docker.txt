@@ -7,6 +7,55 @@ docker stop postgres-container
 // Проверить список работающих контейнеров:
 docker ps
 
+// Показать все контейнеры (включая остановленные)
+docker ps -a
+
 // Зайти внутрь контейнера и подключиться к PostgreSQL:
 winpty docker exec -it postgres-container psql -U admin -d mydb
 
+// удалить контейнер
+docker rm postgres-container
+
+// Просмотр всех volume
+docker volume ls
+
+// Удаление конкретного volume
+docker volume rm <volume_name>
+
+// Удаление всех volume (даже используемых)
+docker volume rm $(docker volume ls -q)
+
+// drop DB
+docker exec -it postgres_db psql -U admin -d mydb -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+
+##########################################################
+##########################################################
+Резервное копирование
+##########################################################
+# Создание бэкапа
+docker exec -t postgres-container pg_dump -U dba_admin -F c -f /backups/mydb_backup.dump mydb 
+
+##########################################################
+Разбор
+##########################################################
+docker exec - выполняет команду внутри контейнера
+-t — подключает терминал
+pg_dump — команда для дампа базы данных
+-U dba_admin — указание пользователя
+-F c — формат бэкапа
+Флаг -F задаёт формат резервной копии:
+
+c (custom) — специальный формат PostgreSQL. 
+Он позволяет восстановить БД выборочно (pg_restore может восстанавливать отдельные таблицы).
+Другие варианты:
+p (plain text) — SQL-дамп в текстовом виде (.sql).
+d (directory) — дамп в виде директории.
+t (tar) — дамп в виде .tar архива.
+-f /backups/mydb_backup.dump — путь сохранения файла
+-f указывает, куда сохранить дамп.
+/backups/mydb_backup.dump — путь внутри контейнера, 
+который примонтирован к локальной папке C:/dev/dba/backups.
+
+
+// восстановление данных из бэкапа
+docker exec -t postgres-container pg_restore -U dba_admin -d mydb /backups/mydb_backup.dump

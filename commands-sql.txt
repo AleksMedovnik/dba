@@ -1,8 +1,15 @@
 SELECT datname FROM pg_database;
 \dt;
 
+
+
 # посмотреть все схемы
 SELECT schema_name FROM information_schema.schemata;
+
+# какой схеме принадлежит таблица users? 
+SELECT table_schema, table_name 
+FROM information_schema.tables 
+WHERE table_name = 'users'
 
 #  Вывести все таблицы во всех схемах
 SELECT table_schema, table_name FROM information_schema.tables
@@ -15,6 +22,16 @@ WHERE table_schema = 'имя_схемы';
 # вывести данные из таблицы в определённой схеме
 SELECT * FROM имя_схемы.имя_таблицы;
 
+# Проверить существующие политики
+SELECT * FROM pg_policies WHERE policyname = 'select_all';
+
+# Проверка прав пользователя на уровне схемы
+SELECT grantee, table_schema, table_name, privilege_type 
+FROM information_schema.role_table_grants 
+WHERE grantee = 'имя_пользователя' 
+AND table_schema = 'public';
+
+##########################################
 create database users_db;
 drop database users_db;
 
@@ -144,7 +161,8 @@ commit;
 SELECT * FROM pg_roles;
 
 # Посмотреть права пользователя
-SELECT grantee, privilege_type FROM information_schema.role_table_grants WHERE grantee = 'user_name';
+SELECT grantee, privilege_type FROM information_schema.role_table_grants 
+WHERE grantee = 'user_name';
 
 # Вывести текущего пользователя
 SELECT current_user;
@@ -216,3 +234,138 @@ ALTER ROLE username NOCREATEROLE NOCREATEDB NOREPLICATION;
 
 # Изменить пароль пользователя
 ALTER ROLE username WITH PASSWORD 'new_secure_password';
+
+# Изменить имя пользователя
+ALTER ROLE old_name RENAME TO new_name;
+
+# Настройка Row-Level Security
+# Включить RLS для таблицы
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+
+# Создаём нового пользователя с паролем
+CREATE ROLE reporter WITH LOGIN PASSWORD 'kjdwei'a26883^%$hfd';
+
+# выдать пользователю права на SELECT из всех таблиц схемы public
+GRANT USAGE ON SCHEMA public TO readonly_user;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO readonly_user;
+
+# Проверка политик RLS
+SELECT nspname AS schema_name,
+       relname AS table_name,
+       polname AS policy_name,
+       polpermissive,
+       polroles,
+       polcmd,
+       polqual,
+       polwithcheck
+FROM pg_policy p
+JOIN pg_class c ON c.oid = p.polrelid
+JOIN pg_namespace n ON n.oid = c.relnamespace;
+
+# Отозвать доступ ко всем схемам
+REVOKE ALL ON DATABASE your_database_name FROM your_user_name;
+
+# Проверка прав пользователя
+SELECT * FROM information_schema.table_privileges WHERE grantee = 'reporter';
+
+# Отозвать права на чтение системных каталогов
+REVOKE SELECT ON pg_roles FROM ваш_пользователь;
+
+# pg_read_all_data: 
+Позволяет читать все данные (таблицы, представления, последовательности).
+
+-- Отозвать роль pg_read_all_data у пользователя
+REVOKE pg_read_all_data FROM reporter;
+
+# Дать доступ только на чтение таблиц в схеме public
+GRANT USAGE ON SCHEMA public TO reporter;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO reporter;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO reporter;
+
+# проверить, какие роли связаны с reporter
+SELECT grantee, privilege_type, grantor 
+FROM information_schema.role_table_grants 
+WHERE grantee = 'reporter';
+
+# не включена ли у reporter настройка INHERIT
+SELECT rolname, rolinherit FROM pg_roles WHERE rolname = 'reporter';
+
+# отключить rolinherit
+ALTER ROLE reporter NOINHERIT;
+
+# Ограничьте доступ к системным таблицам
+REVOKE SELECT ON pg_roles, pg_authid, pg_user FROM reporter;
+
+# Ограничьте доступ к другим схемам
+REVOKE USAGE ON SCHEMA admin_schema, private FROM reporter;
+
+# Запретить доступ всем (PUBLIC)
+REVOKE SELECT ON pg_roles FROM PUBLIC;
+
+# Выдать права на все существующие таблицы
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO username;
+
+# Автоматически выдавать права на новые таблицы
+ALTER DEFAULT PRIVILEGES IN SCHEMA public 
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO username;
+
+##########################################################
+##########################################################
+##########################################################
+
+-- Создание пользователей без доступа ни к каким БД и схемам
+CREATE ROLE user_name WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT;
+
+-- создание с паролем
+CREATE ROLE user_name WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT PASSWORD 'your_secure_password';
+
+-- Выдать developer доступ только к конкретным БД
+GRANT CONNECT ON DATABASE my_database TO developer;
+
+-- Разрешить developer использовать схему public
+GRANT USAGE ON SCHEMA public TO developer;  
+
+-- Выдать права на таблицы только в public
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO developer;
+
+-- Дать права на будущие таблицы
+ALTER DEFAULT PRIVILEGES IN SCHEMA public 
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO developer;
+
+-- право на создание объектов (CREATE) в схеме public
+GRANT CREATE ON SCHEMA public TO username;
+
+-- выдать права на SEQUENCE для автоинкрементных полей (SERIAL, BIGSERIAL)
+GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO username;
+
+-- Запретить доступ ко всем другим схемам, кроме public
+DO $$ 
+DECLARE schema_name TEXT; 
+BEGIN 
+    FOR schema_name IN (SELECT nspname FROM pg_namespace WHERE nspname NOT IN ('public', 'pg_catalog', 'information_schema')) 
+    LOOP 
+        EXECUTE format('REVOKE USAGE ON SCHEMA %I FROM developer, reporter', schema_name); 
+    END LOOP; 
+END $$;
+
+-- Запретить просмотр системных таблиц (pg_class, pg_namespace)
+REVOKE SELECT ON pg_catalog.pg_class FROM developer;
+REVOKE SELECT ON pg_catalog.pg_namespace FROM developer;
+REVOKE SELECT ON information_schema.tables FROM developer;
+
+-- Запретить доступ к pg_roles
+CREATE VIEW filtered_pg_roles AS 
+SELECT * FROM pg_roles WHERE rolname = current_user;
+
+REVOKE SELECT ON pg_roles FROM public;
+GRANT SELECT ON filtered_pg_roles TO developer;
+
+-- посмотреть все системные каталоги
+SELECT tablename 
+FROM pg_catalog.pg_tables 
+WHERE schemaname = 'pg_catalog' 
+ORDER BY tablename;
+
+-- запретить доступ к системным каталогам пользователю
+REVOKE SELECT ON ALL TABLES IN SCHEMA pg_catalog FROM username;
+

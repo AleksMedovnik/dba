@@ -5,13 +5,14 @@ services:
     container_name: postgres-container
     restart: always
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: secret
+      POSTGRES_USER: dba_admin
+      POSTGRES_PASSWORD: hielhsdkjeio73902
       POSTGRES_DB: mydb
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - C:/dev/dba/backups:/backups
 
 volumes:
   postgres_data:
